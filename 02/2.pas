@@ -70,7 +70,7 @@ begin
     for i := r.beginning to r.exodus do
     begin
       if i < 10 then goto next;
-      if (floor(log10(i)) mod 2 = 1) and not IsOk(i, (floor(log10(i+1))+1) div 2) then
+      if (floor(log10(i)) mod 2 = 1) and not IsOk(i, (floor(log10(i))+1) div 2) then
         p1 := p1 + i;
 
       for j := 1 to max(floor(log10(i))-1, 1) do
