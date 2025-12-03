@@ -1,0 +1,125 @@
+# -*- QBE -*-
+
+function l $convert(l %p) {
+@start
+@loop
+  %chr =w loadub %p
+  %nl =w cnew %chr, 10
+  jnz %nl, @cont, @end
+@cont
+  %chr =w sub %chr, 48
+  storeb %chr, %p
+  %p =l add %p, 1
+  jmp @loop
+@end
+  storeb 0, %p
+  %p =l add %p, 1
+  ret %p
+}
+
+function w $put(l %p) {
+@start
+@loop
+  %chr =w loadub %p
+  jnz %chr, @cont, @end
+@cont
+  %p =l add %p, 1
+  jmp @loop
+@end
+  call $putchar(w 10)
+  ret 0
+}
+
+function l $len(l %p) {
+@start
+  %n =l cast 0
+@loop
+  %chr =w loadub %p
+  jnz %chr, @cont, @end
+@cont
+  %n =l add %n, 1
+  %p =l add %p, 1
+  jmp @loop
+@end
+  ret %n
+}
+
+function l $getmax(l %p, l %max, l %next) {
+@start
+  %ret =l cast 0
+@loop
+  %over =w cugel %p, %max
+  jnz %over, @finalize, @ok
+@ok
+  %cur =l loadub %p
+  %biggerp =w cugtl %cur, %ret
+  jnz %biggerp, @bigger, @smaller
+@bigger
+  %ret =l add 0, %cur
+  %pp =l add %p, 1
+  storel %pp, %next
+@smaller
+  %p =l add %p, 1
+  jmp @loop
+@finalize
+  ret %ret
+}
+
+function l $solve(l %p, l %required) {
+@start
+  %retval =l cast 0
+  %len =l call $len(l %p)
+  %end =l add %p, %len
+@loop
+  %max =l sub %end, %required
+  %max =l add %max, 1
+  %next =l alloc4 8
+  %r =l call $getmax(l %p, l %max, l %next)
+  %retval =l mul %retval, 10
+  %retval =l add %retval, %r
+  %required =l sub %required, 1
+  %p =l loadl %next
+  jnz %required, @loop, @finalize
+@finalize
+  ret %retval
+}
+
+export function w $main() {
+@start
+  %fd =w call $open(l $path, w 0) # 0 = O_RDONLY
+  %ptr =l call $malloc(l 65536)
+  %baseptr =l copy %ptr
+
+  %rd =l call $read(w %fd, l %ptr, l 65536)
+  %p =l add %rd, %ptr
+  storeb 0, %p
+
+  %sum1 =l cast 0
+  %sum2 =l cast 0
+@loop
+  %ptrn =l call $convert(l %ptr)
+  # call $put(l %ptr)
+  %result1 =l call $solve(l %ptr, l 2)
+  %result2 =l call $solve(l %ptr, l 12)
+  %ptr =l add 0, %ptrn
+  %over =w cugel %ptr, %p
+  %sum1 =l add %sum1, %result1
+  %sum2 =l add %sum2, %result2
+  jnz %over, @finalize, @loop
+
+@finalize
+  call $printf(l $p1fmt, ..., l %sum1)
+  call $printf(l $p2fmt, ..., l %sum2)
+  %r =w call $close(w %fd)
+  %r =w call $free(l %baseptr)
+  ret 0
+}
+
+data $path  = { b "input", b 0 }
+data $p1fmt = { b "p1: %zu\n", b 0 }
+data $p2fmt = { b "p2: %zu\n", b 0 }
+
+# Local Variables:
+# tab-width: 2
+# compile-command: "qbe -o 3.s 3.ssa && cc -o 3 3.s && ./3"
+# End:

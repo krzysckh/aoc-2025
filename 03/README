@@ -1,0 +1,5 @@
+requires qbe: https://c9x.me/compile/
+
+$ qbe -o 3.s 3.ssa && cc -o 3 3.s && ./3
+p1: 17613
+p2: 175304218462560
