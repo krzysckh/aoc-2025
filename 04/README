@@ -1,0 +1,4 @@
+$ emacs -nw -Q --batch --load 4.el --eval '(4/solve)'
+Package cl is deprecated
+p1: 1384
+p2: 8013
