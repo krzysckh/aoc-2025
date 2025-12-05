@@ -2,24 +2,25 @@
   (let loop ((ls (force-ll (lines (open-input-file "input"))))
              (ranges #n))
     (if (string=? (car ls) "")
-        (values
-         (map
-          (λ (r) (map string->number ((string->regex "c/-/") r)))
-          (reverse ranges))
-         (map string->number (cdr ls)))
+        (values (map
+                 (λ (r)
+                   (let ((l (map string->number ((string->regex "c/-/") r))))
+                     (cons (car l) (cadr l))))
+                 (reverse ranges))
+                (map string->number (cdr ls)))
         (loop (cdr ls) (cons (car ls) ranges)))))
 
 (define (fresh? n rs)
   (any (λ (r)
          (and
           (>= n (car r))
-          (<= n (cadr r))))
+          (<= n (cdr r))))
        rs))
 
 (print "p1: " (len (filter (C fresh? ranges) inputs)))
 
 (define (unfuck ranges)
-  (let loop ((r (list (car ranges))) (ranges (cdr ranges)))
+  (let loop ((r #n) (ranges ranges))
     (if (null? ranges)
         r
         (let ((it (car ranges)))
@@ -28,12 +29,12 @@
              (cond
               ((null? r)
                `(,it . #n))
-              ((and (< (car it) (car (car r))) (> (cadr it) (cadr (car r))))
+              ((and (< (car it) (caar r)) (> (cdr it) (cdar r)))
                `(,it . ,(walk (cdr r))))
               ((fresh? (car it) (list (car r)))
-               `(,(list (car (car r)) (max (cadr it) (cadr (car r)))) . ,(cdr r)))
-              ((fresh? (cadr it) (list (car r)))
-               `(,(list (min (car (car r)) (car it)) (cadr (car r))) . ,(cdr r)))
+               `((,(caar r) . ,(max (cdr it) (cdar r))) . ,(cdr r)))
+              ((fresh? (cdr it) (list (car r)))
+               `((,(min (caar r) (car it)) . ,(cdar r)) . ,(cdr r)))
               (else
                `(,(car r) . ,(walk (cdr r))))))
            (cdr ranges))))))
@@ -45,4 +46,4 @@
           (loop new)
           new))))
 
-(print "p2: " (fold (λ (a b) (+ 1 a (- (cadr b) (car b)))) 0 ranges*))
+(print "p2: " (fold (λ (a b) (+ 1 a (- (cdr b) (car b)))) 0 ranges*))
