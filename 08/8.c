@@ -92,7 +92,7 @@ int
 main(void)
 {
   FILE *f = fopen("input", "r");
-  uint i, j, v = 0;
+  uint i, j, v = 0, m;
   int lbnp[1024];
   Dist d;
   while (!feof(f)) {
@@ -126,7 +126,7 @@ main(void)
 
     if (d.a != d.b)
       app(d.a, d.b);
-    uint m = max();
+    m = max();
     if (m == nb) {
       /*
       putb(d.a);
