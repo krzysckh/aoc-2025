@@ -1,0 +1,5 @@
+a manual solution
+$ clang++-19 -std=c++17 -Wall -Wextra -o 9 9.cpp -lraylib && ./9
+p1: 4741848414
+INFO: TIMER: Target time per frame: 16.667 milliseconds
+...
