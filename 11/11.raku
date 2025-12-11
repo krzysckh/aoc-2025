@@ -1,9 +1,9 @@
 # -*- mode: raku; raku-indent-offset: 2 -*-
 
 my %m;
-for ("input".IO.lines) {
+for "input".IO.lines {
   /(.*) \: ' ' (.*)/;
-  %m{$0} = $1.split(' ').cache
+  %m{$0} = $1.split(' ')
 }
 
 sub p1 {
@@ -13,7 +13,7 @@ sub p1 {
     return 1 if $it eq "out";
     return %seen{$it} if %seen{$it}:exists;
     %seen{$it} //= 0;
-    for %m{$it}.[] {
+    for @(%m{$it}) {
       %seen{$it} += $recur($_);
     }
     %seen{$it}
@@ -34,7 +34,7 @@ sub p2 {
     $fftp = 1 if $it eq "fft";
     my $dfstate = ($fftp+<1)+|$dacp;
 
-    if ($it eq "out") {
+    if $it eq "out" {
       return 1 if $dacp and $fftp;
       return 0
     }
@@ -43,7 +43,7 @@ sub p2 {
 
     %seen{$it} //= {};
     %seen{$it}{$dfstate} //= 0;
-    for %m{$it}.[] {
+    for @(%m{$it}) {
       %seen{$it}{$dfstate} += $recur($_, $dacp, $fftp);
     }
     %seen{$it}{$dfstate}
